@@ -1,0 +1,11 @@
+images:
+bike.png
+laptop.png
+
+icons:
+user.png
+phone.png
+mail.png
+lock.png
+map.png
+bike-icon.png
