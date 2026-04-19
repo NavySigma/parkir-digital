@@ -18,10 +18,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
+  // Cek Env Vars biar gak bingung kalau kosong
+  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return res.status(500).json({ success: false, message: 'Missing Supabase Environment Variables' });
+  }
+
   try {
     const { customer_name, amount } = req.body;
     const finalAmount = amount || 2000;
     const tx_id = `TX-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
+
+    console.log('Creating transaction for:', customer_name, 'Amount:', finalAmount);
 
     // 2. Simpan ke PostgreSQL (Supabase)
     const { data, error } = await supabase
@@ -36,7 +43,10 @@ export default async function handler(req, res) {
       ])
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase Insert Error:', error);
+      throw error;
+    }
 
     // 3. Request ke Midtrans Snap
     let parameter = {
@@ -56,7 +66,7 @@ export default async function handler(req, res) {
       .from('transactions')
       .update({ 
         snap_token: transaction.token,
-        payment_url: `https://app.sandbox.midtrans.com/snap/v2/vtweb/${transaction.token}`
+        payment_url: transaction.redirect_url
       })
       .eq('tx_id', tx_id);
 
