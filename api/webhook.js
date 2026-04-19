@@ -1,27 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 import midtransClient from 'midtrans-client';
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+export async function handler(req, res) {
+  const supabase = createClient(
+    process.env.VITE_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
-const serverKey = process.env.MIDTRANS_SERVER_KEY;
-const isProd = serverKey && serverKey.startsWith('Mid-server-');
+  const serverKey = process.env.MIDTRANS_SERVER_KEY;
+  const isProd = serverKey && serverKey.startsWith('Mid-server-');
 
-let apiClient = new midtransClient.Snap({
-  isProduction: isProd,
-  serverKey: serverKey
-});
+  const apiClient = new midtransClient.Snap({
+    isProduction: isProd,
+    serverKey: serverKey
+  });
 
-export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
     const notificationJson = req.body;
-
     const statusResponse = await apiClient.transaction.notification(notificationJson);
     const orderId = statusResponse.order_id;
     const transactionStatus = statusResponse.transaction_status;

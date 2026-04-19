@@ -1,33 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 import midtransClient from 'midtrans-client';
 
-// 1. Setup Supabase & Midtrans
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+export async function handler(req, res) {
+  const supabase = createClient(
+    process.env.VITE_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
-const serverKey = process.env.MIDTRANS_SERVER_KEY;
-const isProd = serverKey && serverKey.startsWith('Mid-server-');
+  const serverKey = process.env.MIDTRANS_SERVER_KEY;
+  const isProd = serverKey && serverKey.startsWith('Mid-server-');
 
-let snap = new midtransClient.Snap({
-  isProduction: isProd,
-  serverKey: serverKey
-});
+  const snap = new midtransClient.Snap({
+    isProduction: isProd,
+    serverKey: serverKey
+  });
 
-console.log('Midtrans Config:', {
-  isProduction: isProd,
-  hasServerKey: !!serverKey,
-  serverKeyPrefix: serverKey ? serverKey.substring(0, 11) : 'none'
-});
-
-export default async function handler(req, res) {
   // Hanya terima POST request
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // Cek Env Vars biar gak bingung kalau kosong
   if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(500).json({ success: false, message: 'Missing Supabase Environment Variables' });
   }
@@ -37,9 +29,6 @@ export default async function handler(req, res) {
     const finalAmount = amount || 2000;
     const tx_id = `TX-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
 
-    console.log('Creating transaction for:', customer_name, 'Amount:', finalAmount);
-
-    // 2. Simpan ke PostgreSQL (Supabase)
     const { data, error } = await supabase
       .from('transactions')
       .insert([
@@ -52,12 +41,8 @@ export default async function handler(req, res) {
       ])
       .select();
 
-    if (error) {
-      console.error('Supabase Insert Error:', error);
-      throw error;
-    }
+    if (error) throw error;
 
-    // 3. Request ke Midtrans Snap
     let parameter = {
       "transaction_details": {
         "order_id": tx_id,
@@ -70,7 +55,6 @@ export default async function handler(req, res) {
 
     const transaction = await snap.createTransaction(parameter);
     
-    // Update data transaksi dengan token & redirect url
     await supabase
       .from('transactions')
       .update({ 
@@ -79,7 +63,6 @@ export default async function handler(req, res) {
       })
       .eq('tx_id', tx_id);
 
-    // 4. Balikin hasil ke Frontend
     return res.status(200).json({
       success: true,
       transaction: {
