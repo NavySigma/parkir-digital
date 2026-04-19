@@ -6,16 +6,14 @@ export default function GenerateQR() {
   const [tx, setTx] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("account")) || {
-    username: "Guest",
-    id: "0000",
-  };
+  const user = JSON.parse(localStorage.getItem("account")) || null;
 
   useEffect(() => {
-    createTransaction();
+    if (user) {
+      createTransaction();
+    }
   }, []);
 
-  // FITUR POLLING: Cek status setiap 2 detik
   useEffect(() => {
     let interval;
     if (tx && tx.status !== 'verified') {
@@ -25,7 +23,6 @@ export default function GenerateQR() {
           const data = await res.json();
           if (data.success && data.transaction.status === 'verified') {
             clearInterval(interval);
-            // LANGSUNG PINDAH KE MIDTRANS
             window.location.href = data.transaction.payment_url;
           }
         } catch (e) {
@@ -48,16 +45,15 @@ export default function GenerateQR() {
       const data = await res.json();
       if (data.success) {
         setTx(data.transaction);
-      } else {
-        alert("Gagal membuat transaksi");
       }
     } catch (e) {
       console.error(e);
-      alert("Error creating transaction");
     } finally {
       setLoading(false);
     }
   }
+
+  if (!user) return <div className="p-10 text-center font-bold">Silakan login terlebih dahulu.</div>;
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
@@ -65,9 +61,8 @@ export default function GenerateQR() {
     </div>
   );
 
-  if (!tx) return <div className="p-6 text-center">Transaksi tidak ditemukan.</div>;
+  if (!tx) return <div className="p-6 text-center">Gagal memuat tiket.</div>;
 
-  // QR CODE SEKARANG MENGARAH KE HALAMAN VERIFIKASI PETUGAS
   const verifyUrl = `${window.location.origin}/verify/${tx.tx_id}`;
 
   return (
@@ -88,20 +83,17 @@ export default function GenerateQR() {
             <div className="bg-white p-4 rounded-xl shadow-inner">
               <QRCodeSVG value={verifyUrl} size={180} level={"H"} />
             </div>
-            <p className="mt-4 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-widest italic">Menunggu Scan Petugas...</p>
+            <p className="mt-4 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-widest italic animate-pulse text-center">
+              Menunggu Scan Petugas di Lokasi...
+            </p>
           </div>
         </div>
 
-        <div className="p-6 bg-gray-50 text-center">
-          <div className="animate-pulse text-blue-600 font-bold text-xs uppercase mb-2">Halaman akan otomatis dialihkan ke pembayaran setelah petugas melakukan verifikasi.</div>
-          <p className="text-[10px] text-gray-400 leading-tight uppercase font-bold">Gunakan Kamera HP Petugas untuk Scan</p>
-          
-          <button 
-            onClick={() => window.open(verifyUrl, '_blank')}
-            className="mt-4 w-full bg-blue-600 text-white py-4 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg"
-          >
-            Simulasi Scan Petugas
-          </button>
+        <div className="p-8 bg-gray-50 text-center border-t border-dashed">
+          <p className="text-[10px] text-gray-400 leading-tight uppercase font-bold">
+            Halaman ini akan otomatis dialihkan ke pembayaran setelah petugas melakukan verifikasi fisik.
+          </p>
+          <p className="mt-4 text-[9px] text-gray-300 font-mono">ORDER ID: {tx.tx_id}</p>
         </div>
       </div>
     </div>
