@@ -12,6 +12,12 @@ let snap = new midtransClient.Snap({
   serverKey: process.env.MIDTRANS_SERVER_KEY
 });
 
+console.log('Midtrans Config:', {
+  isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
+  hasServerKey: !!process.env.MIDTRANS_SERVER_KEY,
+  serverKeyPrefix: process.env.MIDTRANS_SERVER_KEY ? process.env.MIDTRANS_SERVER_KEY.substring(0, 10) : 'none'
+});
+
 export default async function handler(req, res) {
   // Hanya terima POST request
   if (req.method !== 'POST') {
