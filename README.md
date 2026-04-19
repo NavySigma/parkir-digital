@@ -1,6 +1,6 @@
 # Parkir Digital
 
-Parkir Digital adalah solusi modern untuk manajemen parkir berbasis web, terdiri dari backend (Laravel) dan frontend (React + Vite). Sistem ini memudahkan pengelolaan data kendaraan, transaksi parkir, serta integrasi pembayaran digital.
+Parkir Digital adalah solusi modern untuk manajemen parkir berbasis web yang dibangun menggunakan React, Vite, dan Tailwind CSS. Sistem ini memudahkan pengelolaan data kendaraan, transaksi parkir, serta integrasi pembayaran digital.
 
 ## Kenapa Membuat Parkir Digital?
 
@@ -21,41 +21,15 @@ Parkir Digital adalah solusi modern untuk manajemen parkir berbasis web, terdiri
 
 ## Instalasi
 
-### 1. Backend (Laravel)
-
-**Kebutuhan:**
-- PHP >= 8.2
-- Composer
-- Database (SQLite/MySQL)
-
-**Langkah Instalasi:**
-```bash
-cd my-parking-backend
-composer install
-cp .env.example .env
-# Edit konfigurasi database & midtrans di .env jika perlu
-php artisan key:generate
-php artisan migrate
-php artisan db:seed # opsional, untuk data awal
-```
-
-**Jalankan server:**
-```bash
-php artisan serve
-```
-
----
-
-### 2. Frontend (React + Vite)
-
 **Kebutuhan:**
 - Node.js >= 18
 - npm
 
 **Langkah Instalasi:**
 ```bash
-cd parkir_digital_vite_final
 npm install
+cp .env.example .env
+# Edit konfigurasi di .env sesuai kebutuhan
 ```
 
 **Jalankan aplikasi:**
@@ -67,16 +41,9 @@ npm run dev
 
 ## Struktur Project
 
-- my-parking-backend — Backend Laravel (API, database, Midtrans, dsb)
-- parkir_digital_vite_final — Frontend React (UI, dashboard, QR code, dsb)
-
----
-
-## Konfigurasi Tambahan
-
-- Pastikan backend dan frontend berjalan di port yang berbeda.
-- Atur URL API di frontend sesuai alamat backend (`.env` atau file konfigurasi frontend).
-- Untuk pembayaran, atur kredensial Midtrans di file `.env` backend.
+- `src/` — UI Components, pages, and application logic.
+- `api/` — Serverless API routes (Node.js).
+- `public/` — Static assets.
 
 ---
 
@@ -85,7 +52,5 @@ npm run dev
 Project ini open-source, silakan kontribusi atau gunakan sesuai kebutuhan. Lisensi mengikuti MIT.
 
 ---
-
-Silakan edit bagian tertentu jika ingin menambah detail spesifik projectmu! Jika ingin README ini langsung dibuatkan di workspace, konfirmasi saja.
 
 I HEART NATASYA ❤️
