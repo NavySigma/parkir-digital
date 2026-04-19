@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { handler as createTransaction } from './api/create-transaction.js'
 import { handler as checkStatus } from './api/check-status.js'
 import { handler as verifyTransaction } from './api/verify-transaction.js'
+import { handler as confirmPayment } from './api/confirm-payment.js'
 import { handler as webhook } from './api/webhook.js'
 import { handler as contact } from './api/contact.js'
 import url from 'url'
@@ -37,6 +38,7 @@ export default defineConfig(({ mode }) => {
                 if (pathname === '/api/create-transaction') return await createTransaction(req, res)
                 if (pathname === '/api/check-status') return await checkStatus(req, res)
                 if (pathname === '/api/verify-transaction') return await verifyTransaction(req, res)
+                if (pathname === '/api/confirm-payment') return await confirmPayment(req, res)
                 if (pathname === '/api/webhook') return await webhook(req, res)
                 if (pathname === '/api/contact') return await contact(req, res)
                 res.status(404).json({ message: 'API Route not found' })
