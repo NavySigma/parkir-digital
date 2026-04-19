@@ -7,15 +7,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const serverKey = process.env.MIDTRANS_SERVER_KEY;
+const isProd = serverKey && serverKey.startsWith('Mid-server-');
+
 let snap = new midtransClient.Snap({
-  isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-  serverKey: process.env.MIDTRANS_SERVER_KEY
+  isProduction: isProd,
+  serverKey: serverKey
 });
 
 console.log('Midtrans Config:', {
-  isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-  hasServerKey: !!process.env.MIDTRANS_SERVER_KEY,
-  serverKeyPrefix: process.env.MIDTRANS_SERVER_KEY ? process.env.MIDTRANS_SERVER_KEY.substring(0, 10) : 'none'
+  isProduction: isProd,
+  hasServerKey: !!serverKey,
+  serverKeyPrefix: serverKey ? serverKey.substring(0, 11) : 'none'
 });
 
 export default async function handler(req, res) {
