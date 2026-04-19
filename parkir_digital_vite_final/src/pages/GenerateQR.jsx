@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 
 export default function GenerateQR() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [tx, setTx] = useState(null);
   const [loading, setLoading] = useState(false);
 
-const user = JSON.parse(localStorage.getItem("account")) || {
+  const user = JSON.parse(localStorage.getItem("account")) || {
     username: "Guest",
     id: "0000",
   };
@@ -18,13 +19,12 @@ const user = JSON.parse(localStorage.getItem("account")) || {
   async function createTransaction() {
     setLoading(true);
     try {
-      // You can include customer data here if you want (name, phone, vehicle_plate)
       const body = {
         customer_name: user.username,
         amount: 2000
       };
 
-      const res = await fetch("http://127.0.0.1:8000/api/transaction/create", {
+      const res = await fetch(`${API_URL}/create-transaction`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -44,10 +44,10 @@ const user = JSON.parse(localStorage.getItem("account")) || {
   }
 
   if (loading) return <div className="p-6">Generating ticket...</div>;
-  if (!tx) return <div className="p-6">Generating ticket...</div>;
+  if (!tx) return <div className="p-6 text-center">No transaction found.</div>;
 
-  // QR should point to your frontend pay route
-  const payUrl = `http://localhost:5173/pay/${tx.tx_id}`;
+  // QR points to your frontend pay route
+  const payUrl = `${window.location.origin}/pay/${tx.tx_id}`;
 
   return (
     <div className="p-6 text-center">
