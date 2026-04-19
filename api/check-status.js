@@ -23,12 +23,11 @@ export async function handler(req, res) {
       return res.status(404).json({ success: false, message: 'Transaction not found' });
     }
 
-    return res.status(200).json({
-      success: true,
-      transaction: data
-    });
+    return res.status(200).json({ success: true, transaction: data });
   } catch (error) {
     console.error('Error fetching status:', error);
     return res.status(500).json({ success: false, message: error.message });
   }
 }
+
+export default handler;

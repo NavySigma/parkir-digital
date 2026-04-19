@@ -15,13 +15,12 @@ export async function handler(req, res) {
     serverKey: serverKey
   });
 
-  // Hanya terima POST request
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return res.status(500).json({ success: false, message: 'Missing Supabase Environment Variables' });
+    return res.status(500).json({ success: false, message: 'Missing Environment Variables' });
   }
 
   try {
@@ -38,19 +37,13 @@ export async function handler(req, res) {
           amount: finalAmount, 
           status: 'pending' 
         }
-      ])
-      .select();
+      ]);
 
     if (error) throw error;
 
     let parameter = {
-      "transaction_details": {
-        "order_id": tx_id,
-        "gross_amount": finalAmount
-      },
-      "customer_details": {
-        "first_name": customer_name || 'Guest'
-      }
+      "transaction_details": { "order_id": tx_id, "gross_amount": finalAmount },
+      "customer_details": { "first_name": customer_name || 'Guest' }
     };
 
     const transaction = await snap.createTransaction(parameter);
@@ -65,16 +58,12 @@ export async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      transaction: {
-        tx_id,
-        amount: finalAmount,
-        snap_token: transaction.token,
-        status: 'pending'
-      }
+      transaction: { tx_id, amount: finalAmount, snap_token: transaction.token, status: 'pending' }
     });
-
   } catch (error) {
     console.error('Error:', error);
     return res.status(500).json({ success: false, message: error.message });
   }
 }
+
+export default handler;
