@@ -1,127 +1,80 @@
-import { Link } from "react-router-dom";
-import bikeIcon from "../assets/icons/bike-icon.png";
-import { useEffect, useState } from "react";
-
-const TMDB_API_KEY = "07be0d298f5ade234f186e9eeb86a3b8";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
-
-  const handleLogin = async () => {
-    try {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/authentication/token/new?api_key=${TMDB_API_KEY}`
-      );
-      const data = await res.json();
-
-      if (!data.success) throw new Error("Gagal request token");
-      const requestToken = data.request_token;
-
-      window.location.href = `https://www.themoviedb.org/authenticate/${requestToken}?redirect_to=http://localhost:5173/auth/tmdb/callback`;
-    } catch (err) {
-      console.error(err);
-      alert("Gagal login ke TMDB");
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("tmdb_session_id");
-    setUser(null);
-    window.location.href = "/";
-  };
-
-  const fetchAccountData = async (sessionId) => {
-    const res = await fetch(
-      `https://api.themoviedb.org/3/account?api_key=${TMDB_API_KEY}&session_id=${sessionId}`
-    );
-    const data = await res.json();
-
-    if (data?.username) {
-      let avatar_url = null;
-      if (data.avatar?.tmdb?.avatar_path) {
-        avatar_url = `https://image.tmdb.org/t/p/w200${data.avatar.tmdb.avatar_path}`;
-      } else if (data.avatar?.gravatar?.hash) {
-        avatar_url = `https://www.gravatar.com/avatar/${data.avatar.gravatar.hash}`;
-      }
-
-      setUser({
-  username: data.username,
-  avatar: avatar_url,
-  tmdb_id: data.id, // ⬅️ penting
-});
-localStorage.setItem("account", JSON.stringify({
-  username: data.username,
-  avatar: avatar_url,
-  tmdb_id: data.id,
-}));
-    }
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const sessionId = localStorage.getItem("tmdb_session_id");
-    if (sessionId) fetchAccountData(sessionId);
-
-    const handleLoginSuccess = (e) => {
-      if (e.detail?.session_id) {
-        fetchAccountData(e.detail.session_id);
+    const checkUser = () => {
+      const storedUser = localStorage.getItem("account");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null);
       }
     };
 
-    window.addEventListener("tmdb_login_success", handleLoginSuccess);
-
-    return () =>
-      window.removeEventListener("tmdb_login_success", handleLoginSuccess);
+    checkUser();
+    // Listen for login/logout events
+    window.addEventListener("storage", checkUser);
+    return () => window.removeEventListener("storage", checkUser);
   }, []);
 
+  const handleLogout = () => {
+    if (window.confirm("Apakah Anda yakin ingin logout?")) {
+      localStorage.removeItem("account");
+      setUser(null);
+      navigate("/");
+      // Refresh status di komponen lain
+      window.dispatchEvent(new Event("storage"));
+    }
+  };
+
   return (
-    <nav className="bg-white border-b">
-      <div className="container mx-auto flex items-center justify-between py-4 px-6">
-        <div className="flex items-center gap-3">
-          <img src={bikeIcon} alt="logo" className="w-9 h-9" />
-          <h1 className="text-xl font-bold text-gray-900">Parkir Digital</h1>
+    <nav className="bg-white border-b border-gray-100 py-4 px-8 flex justify-between items-center shadow-sm">
+      <Link to="/" className="text-2xl font-black tracking-tighter text-gray-900">
+        PARKIR<span className="text-blue-600">DIGITAL</span>
+      </Link>
+
+      <div className="flex items-center gap-8">
+        <div className="hidden md:flex gap-6 text-sm font-bold uppercase tracking-widest text-gray-400">
+          <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
+          <Link to="/contact" className="hover:text-gray-900 transition-colors">Contact</Link>
+          {user && <Link to="/qrcode" className="hover:text-gray-900 transition-colors">Tiket Saya</Link>}
         </div>
 
-        <div className="flex items-center gap-6">
-          <Link to="/" className="text-gray-700 hover:text-primary">
-            Home
-          </Link>
-          <Link to="/contact" className="text-gray-700 hover:text-primary">
-            Contact
-          </Link>
+        <div className="h-6 w-px bg-gray-100 hidden md:block"></div>
 
-          {user ? (
-            <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-md relative group cursor-pointer">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt="avatar"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center uppercase">
-                  {user.username[0]}
-                </div>
-              )}
-              <span className="font-medium">{user.username}</span>
-
-              <div className="absolute top-12 right-0 bg-white shadow-md rounded-md px-4 py-2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none group-hover:pointer-events-auto">
-                <button
-                  onClick={handleLogout}
-                  className="text-red-500 hover:underline"
-                >
-                  Logout
-                </button>
-              </div>
+        {user ? (
+          <div className="flex items-center gap-4">
+            <div className="text-right hidden sm:block">
+              <p className="text-[10px] text-gray-400 font-bold uppercase leading-none">Logged in as</p>
+              <p className="text-sm font-black text-gray-900 leading-none mt-1">{user.username}</p>
             </div>
-          ) : (
-            <button
-              onClick={handleLogin}
-              className="px-3 py-2 bg-primary text-white rounded-md"
+            <button 
+              onClick={handleLogout}
+              className="px-6 py-2 bg-red-50 text-red-600 rounded-full text-xs font-black uppercase tracking-widest hover:bg-red-100 transition-all border border-red-100"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Link 
+              to="/login"
+              className="px-6 py-2 text-gray-600 rounded-full text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all"
             >
               Login
-            </button>
-          )}
-        </div>
+            </Link>
+            <Link 
+              to="/register"
+              className="px-6 py-2 bg-blue-600 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
+            >
+              Daftar
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );
