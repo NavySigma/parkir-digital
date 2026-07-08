@@ -26,13 +26,26 @@ export async function handler(req, res) {
   try {
     const { customer_name, amount } = req.body;
     const finalAmount = amount || 2000;
-    const tx_id = `TX-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
+
+    let tx_id;
+    let retries = 0;
+    while (true) {
+      tx_id = Math.random().toString(36).substring(2, 10).toUpperCase();
+      const { data: existing } = await supabase
+        .from('transactions')
+        .select('tx_id')
+        .eq('tx_id', tx_id)
+        .maybeSingle();
+      if (!existing) break;
+      retries++;
+      if (retries > 5) throw new Error('Gagal generate ID unik');
+    }
 
     const { data, error } = await supabase
       .from('transactions')
       .insert([
         { 
-          tx_id: tx_id, 
+          tx_id, 
           customer_name: customer_name || 'Guest', 
           amount: finalAmount, 
           status: 'pending' 

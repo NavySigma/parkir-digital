@@ -5,6 +5,7 @@ import NotFound from "../pages/NotFound";
 import GenerateQR from "../pages/GenerateQR";
 import PayPage from "../pages/PayPage";
 import VerifyPage from "../pages/VerifyPage";
+import PetugasScan from "../pages/PetugasScan";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 
@@ -18,6 +19,8 @@ export default function AppRoutes() {
       <Route path="/qrcode" element={<GenerateQR />} />
       <Route path="/pay/:tx_id" element={<PayPage/>} />
       <Route path="/verify/:tx_id" element={<VerifyPage/>} />
+      <Route path="/v/:tx_id" element={<VerifyPage/>} />
+      <Route path="/petugas" element={<PetugasScan/>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
+import Barcode from "react-barcode";
 
 export default function GenerateQR() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -63,8 +63,6 @@ export default function GenerateQR() {
 
   if (!tx) return <div className="p-6 text-center">Gagal memuat tiket.</div>;
 
-  const verifyUrl = `${window.location.origin}/verify/${tx.tx_id}`;
-
   return (
     <div className="p-4 md:p-8 flex justify-center">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
@@ -80,8 +78,8 @@ export default function GenerateQR() {
           </div>
 
           <div className="bg-gray-50 p-6 rounded-2xl border-2 border-gray-100 flex flex-col items-center">
-            <div className="bg-white p-4 rounded-xl shadow-inner">
-              <QRCodeSVG value={verifyUrl} size={180} level={"H"} />
+            <div className="bg-white p-4 rounded-xl shadow-inner flex justify-center">
+              <Barcode value={tx.tx_id} width={1.8} height={80} format="CODE128" displayValue={true} />
             </div>
             <p className="mt-4 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-widest italic animate-pulse text-center">
               Menunggu Scan Petugas di Lokasi...
