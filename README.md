@@ -1,6 +1,6 @@
 # Parkir Digital
 
-Parkir Digital adalah solusi modern untuk manajemen parkir berbasis web yang dibangun menggunakan React, Vite, dan Tailwind CSS. Sistem ini memudahkan pengelolaan data kendaraan, transaksi parkir, serta integrasi pembayaran digital.
+Parkir Digital adalah solusi modern untuk manajemen parkir berbasis web yang dibangun menggunakan React, Vite. Sistem ini memudahkan pengelolaan data kendaraan, transaksi parkir, serta integrasi pembayaran digital.
 
 ## Kenapa Membuat Parkir Digital?
 
