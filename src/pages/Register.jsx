@@ -27,9 +27,18 @@ export default function Register() {
       });
 
       if (error) throw error;
-      
-      alert("Registrasi berhasil! Silakan cek email untuk verifikasi atau langsung login.");
-      navigate("/login");
+
+      if (data.session) {
+        localStorage.setItem("account", JSON.stringify({
+          username: data.user.user_metadata.username || data.user.email,
+          email: data.user.email,
+          id: data.user.id
+        }));
+        navigate("/");
+      } else {
+        alert("Registrasi berhasil!");
+        navigate("/login");
+      }
     } catch (error) {
       alert(error.message);
     } finally {
