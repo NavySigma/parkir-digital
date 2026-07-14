@@ -23,7 +23,7 @@ export default function GenerateQR() {
           const data = await res.json();
           if (data.success && data.transaction.status === 'verified') {
             clearInterval(interval);
-            window.location.href = data.transaction.payment_url;
+            window.open(data.transaction.payment_url, '_blank');
           }
         } catch (e) {
           console.error("Polling error:", e);
