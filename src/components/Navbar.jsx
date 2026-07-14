@@ -37,8 +37,8 @@ export default function Navbar() {
         PARKIR<span className="text-blue-600">DIGITAL</span>
       </Link>
 
-      <div className="flex items-center gap-8">
-        <div className="hidden md:flex gap-6 text-sm font-bold uppercase tracking-widest text-gray-400">
+      <div className="flex items-center gap-4 md:gap-8">
+        <div className="flex gap-3 md:gap-6 text-[10px] md:text-sm font-bold uppercase tracking-widest text-gray-400">
           <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
           <Link to="/contact" className="hover:text-gray-900 transition-colors">Contact</Link>
 
