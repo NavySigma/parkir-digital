@@ -6,12 +6,22 @@ export default function PetugasScan() {
   const inputRef = useRef(null);
   const scannerRef = useRef(null);
   const [error, setError] = useState("");
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("account"));
+    if (!user || !user.role) {
+      alert("Akses ditolak! Halaman ini khusus petugas.");
+      navigate("/");
+      return;
+    }
+    setAuthorized(true);
     inputRef.current?.focus();
     startScanner();
     return () => stopScanner();
   }, []);
+
+  if (!authorized) return null;
 
   async function startScanner() {
     try {

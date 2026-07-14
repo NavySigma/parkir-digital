@@ -8,6 +8,7 @@ const supabase = createClient(
 );
 
 export default function Register() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -27,6 +28,14 @@ export default function Register() {
       });
 
       if (error) throw error;
+
+      const regRes = await fetch(`${API_URL}/register-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: data.user.id, email, username })
+      });
+      const regData = await regRes.json();
+      if (!regData.success) console.error("Gagal simpan ke public.users:", regData.message);
 
       alert("Registrasi berhasil!");
       navigate("/login");

@@ -6,6 +6,10 @@ import { handler as verifyTransaction } from './api/verify-transaction.js'
 import { handler as confirmPayment } from './api/confirm-payment.js'
 import { handler as webhook } from './api/webhook.js'
 import { handler as contact } from './api/contact.js'
+import { handler as getRole } from './api/get-role.js'
+import { handler as getUser } from './api/get-user.js'
+import { handler as registerUser } from './api/register-user.js'
+import { handler as getAdminData } from './api/get-admin-data.js'
 import url from 'url'
 
 export default defineConfig(({ mode }) => {
@@ -41,6 +45,10 @@ export default defineConfig(({ mode }) => {
                 if (pathname === '/api/confirm-payment') return await confirmPayment(req, res)
                 if (pathname === '/api/webhook') return await webhook(req, res)
                 if (pathname === '/api/contact') return await contact(req, res)
+                if (pathname === '/api/get-role') return await getRole(req, res)
+                if (pathname === '/api/get-user') return await getUser(req, res)
+                if (pathname === '/api/register-user') return await registerUser(req, res)
+                if (pathname === '/api/get-admin-data') return await getAdminData(req, res)
                 res.status(404).json({ message: 'API Route not found' })
                 return
               } catch (err) {

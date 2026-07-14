@@ -5,8 +5,7 @@ import AppRoutes from './routes/AppRoutes';
 export default function App(){
   const location = useLocation();
   
-  // Sembunyikan Navbar di halaman petugas (verify) dan halaman redirect bayar (pay)
-  const hideNavbar = location.pathname.startsWith('/verify/') || location.pathname.startsWith('/pay/');
+  const hideNavbar = location.pathname.startsWith('/verify/') || location.pathname.startsWith('/pay/') || location.pathname === '/petugas';
 
   return (
     <div className="min-h-screen bg-white text-gray-900">

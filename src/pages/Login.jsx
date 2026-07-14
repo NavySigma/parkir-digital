@@ -24,19 +24,29 @@ export default function Login() {
 
       if (error) throw error;
 
-      // Simpan format data yang sama dengan sistem lama kita di localStorage
-      const userData = {
+      let userData = {
         username: data.user.user_metadata.username || data.user.email,
         email: data.user.email,
-        id: data.user.id
+        id: data.user.id,
+        role: false
       };
+
+      try {
+        const userRes = await fetch(`${import.meta.env.VITE_API_URL}/get-user?user_id=${data.user.id}`);
+        const userResData = await userRes.json();
+        if (userResData.success && userResData.user) {
+          userData = {
+            id: data.user.id,
+            username: userResData.user.username || userData.username,
+            email: userResData.user.email || userData.email,
+            role: !!userResData.user.role
+          };
+        }
+      } catch (e) {}
       
       localStorage.setItem("account", JSON.stringify(userData));
-      
-      // Beri tahu navbar kalau login berhasil
       window.dispatchEvent(new Event("storage"));
-      
-      alert("Login berhasil!");
+
       navigate("/");
     } catch (error) {
       alert(error.message);

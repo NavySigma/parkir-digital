@@ -41,7 +41,9 @@ export default function Navbar() {
         <div className="hidden md:flex gap-6 text-sm font-bold uppercase tracking-widest text-gray-400">
           <Link to="/" className="hover:text-gray-900 transition-colors">Home</Link>
           <Link to="/contact" className="hover:text-gray-900 transition-colors">Contact</Link>
-          {user && <Link to="/qrcode" className="hover:text-gray-900 transition-colors">Tiket Saya</Link>}
+
+          {user?.role && <Link to="/petugas" className="hover:text-gray-900 transition-colors">Petugas</Link>}
+          {user?.role && <Link to="/admin" className="hover:text-gray-900 transition-colors">Admin</Link>}
         </div>
 
         <div className="h-6 w-px bg-gray-100 hidden md:block"></div>
