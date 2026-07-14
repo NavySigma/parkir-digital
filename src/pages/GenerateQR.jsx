@@ -1,29 +1,29 @@
 import { useEffect, useState } from "react";
 import Barcode from "react-barcode";
+import { Link } from "react-router-dom";
 
 export default function GenerateQR() {
   const API_URL = import.meta.env.VITE_API_URL;
   const [tx, setTx] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("account")) || null;
 
   useEffect(() => {
-    if (user) {
-      createTransaction();
-    }
+    if (user) createTransaction();
   }, []);
 
   useEffect(() => {
     let interval;
-    if (tx && tx.status !== 'verified') {
+    if (tx && !verified) {
       interval = setInterval(async () => {
         try {
           const res = await fetch(`${API_URL}/check-status?tx_id=${tx.tx_id}`);
           const data = await res.json();
           if (data.success && data.transaction.status === 'verified') {
             clearInterval(interval);
-            window.open(data.transaction.payment_url, '_blank');
+            setVerified(true);
           }
         } catch (e) {
           console.error("Polling error:", e);
@@ -31,7 +31,20 @@ export default function GenerateQR() {
       }, 2000);
     }
     return () => clearInterval(interval);
-  }, [tx, API_URL]);
+  }, [tx, verified, API_URL]);
+
+  useEffect(() => {
+    if (!verified || !tx?.snap_token) return;
+    if (window.snap) {
+      window.snap.pay(tx.snap_token);
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://app.midtrans.com/snap/snap.js";
+      script.setAttribute("data-client-key", import.meta.env.VITE_MIDTRANS_CLIENT_KEY);
+      script.onload = () => window.snap.pay(tx.snap_token);
+      document.body.appendChild(script);
+    }
+  }, [verified, tx]);
 
   async function createTransaction() {
     setLoading(true);
@@ -43,9 +56,7 @@ export default function GenerateQR() {
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (data.success) {
-        setTx(data.transaction);
-      }
+      if (data.success) setTx(data.transaction);
     } catch (e) {
       console.error(e);
     } finally {
@@ -78,18 +89,31 @@ export default function GenerateQR() {
           </div>
 
           <div className="bg-gray-50 p-6 rounded-2xl border-2 border-gray-100 flex flex-col items-center">
-            <div className="bg-white p-4 rounded-xl shadow-inner flex justify-center">
-              <Barcode value={tx.tx_id} width={1.8} height={80} format="CODE128" displayValue={true} />
-            </div>
-            <p className="mt-4 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-widest italic animate-pulse text-center">
-              Menunggu Scan Petugas di Lokasi...
-            </p>
+            {verified ? (
+              <div className="text-center w-full space-y-4">
+                <div className="text-green-600 text-5xl">✓</div>
+                <p className="font-bold text-green-700 uppercase tracking-widest text-sm">Tiket Terverifikasi!</p>
+                <p className="text-[10px] text-gray-400">Popup pembayaran akan muncul...</p>
+                <Link to="/" className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest hover:text-gray-600 transition-colors">
+                  ← Kembali ke Beranda
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="bg-white p-4 rounded-xl shadow-inner flex justify-center">
+                  <Barcode value={tx.tx_id} width={1.8} height={80} format="CODE128" displayValue={true} />
+                </div>
+                <p className="mt-4 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-widest italic animate-pulse text-center">
+                  Menunggu Scan Petugas di Lokasi...
+                </p>
+              </>
+            )}
           </div>
         </div>
 
         <div className="p-8 bg-gray-50 text-center border-t border-dashed">
           <p className="text-[10px] text-gray-400 leading-tight uppercase font-bold">
-            Halaman ini akan otomatis dialihkan ke pembayaran setelah petugas melakukan verifikasi fisik.
+            Setelah diverifikasi petugas, popup pembayaran akan muncul secara otomatis.
           </p>
           <p className="mt-4 text-[9px] text-gray-300 font-mono">ORDER ID: {tx.tx_id}</p>
         </div>
